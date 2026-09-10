@@ -1,0 +1,12 @@
+ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon-QA
+BASE_URL = https://vetify-qa.ikeapp.com/
+HOST = vetify-qa.ikeapp.com
+APP_ENV = QA
+PRODUCT_BUNDLE_IDENTIFIER = com.vetify.qa.webapp
+INFOPLIST_KEY_CFBundleDisplayName = vetify QA
+INFOPLIST_KEY_BASE_URL = https://vetify-qa.ikeapp.com/
+INFOPLIST_KEY_HOST = vetify-qa.ikeapp.com
+INFOPLIST_KEY_APP_ENV = QA
+SWIFT_ACTIVE_COMPILATION_CONDITIONS = $(inherited) VETIFY_QA
+CODE_SIGN_ENTITLEMENTS = Vetify-app/Vetify-app.entitlements
+

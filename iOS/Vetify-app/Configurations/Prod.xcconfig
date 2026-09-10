@@ -1,0 +1,10 @@
+BASE_URL = https://vetify.ikeapp.com/
+HOST = vetify.ikeapp.com
+APP_ENV = PROD
+PRODUCT_BUNDLE_IDENTIFIER = com.vetify.webapp
+INFOPLIST_KEY_CFBundleDisplayName = vetify
+INFOPLIST_KEY_BASE_URL = https://vetify.ikeapp.com/
+INFOPLIST_KEY_HOST = vetify.ikeapp.com
+INFOPLIST_KEY_APP_ENV = PROD
+SWIFT_ACTIVE_COMPILATION_CONDITIONS = $(inherited) VETIFY_PROD
+CODE_SIGN_ENTITLEMENTS = Vetify-app/Vetify-app.entitlements
