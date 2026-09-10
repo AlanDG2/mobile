@@ -18,7 +18,14 @@ const BUNDLE_ID = process.env.MOBILE_IOS_BUNDLE_ID ?? 'com.vetify.qa.webapp';
 export const config: WebdriverIO.Config = {
     ...sharedConfig,
     port: 4723,
-    services: [['appium', { command: 'appium' }]],
+    services: [['appium', { command: 'appium', args: { logLevel: 'debug' } }]],
+    // La primera sesión XCUITest en una máquina nueva (ej. un runner de CI recién provisionado)
+    // compila WebDriverAgent desde fuente antes de poder abrir la sesión — puede tardar varios
+    // minutos. El default heredado de sharedConfig (120s / 3 reintentos) es para Android, donde
+    // no hay build nativo de por medio; para iOS lo pisamos con un timeout generoso y sin reintentos
+    // múltiples, para no multiplicar la espera por 3.
+    connectionRetryTimeout: 600_000,
+    connectionRetryCount: 1,
     capabilities: [
         {
             platformName: 'iOS',
@@ -29,6 +36,10 @@ export const config: WebdriverIO.Config = {
             'appium:bundleId': BUNDLE_ID,
             'appium:autoAcceptAlerts': true,
             'appium:newCommandTimeout': 240,
+            // Mismo motivo que el connectionRetryTimeout de arriba: darle tiempo a Appium para
+            // compilar/lanzar WebDriverAgent la primera vez, en vez de rendirse a los 60s default.
+            'appium:wdaLaunchTimeout': 300_000,
+            'appium:wdaConnectionTimeout': 300_000,
         },
     ],
 };
