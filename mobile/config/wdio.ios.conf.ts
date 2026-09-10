@@ -40,6 +40,10 @@ export const config: WebdriverIO.Config = {
             // compilar/lanzar WebDriverAgent la primera vez, en vez de rendirse a los 60s default.
             'appium:wdaLaunchTimeout': 300_000,
             'appium:wdaConnectionTimeout': 300_000,
+            // Surface WebDriverAgent's own console/XCTest log (incluye actividad de WebKit dentro
+            // del proceso de la app) a través de los logs de Appium — mucho más directo que buscar
+            // en el log unificado del sistema, que redacta actividad de apps de terceros.
+            'appium:showXcodeLog': true,
         },
     ],
 };

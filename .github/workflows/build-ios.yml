@@ -50,6 +50,11 @@ jobs:
       - name: Pick an available iPhone simulator on this runner
         run: node mobile/config/pick-ios-simulator.mjs
 
+      - name: Sanity-check network reachability to the QA site from this runner
+        run: |
+          curl -sS -o /dev/null -w "HTTP status: %{http_code}, total time: %{time_total}s\n" \
+            --max-time 15 https://vetify-qa.ikeapp.com/ || echo "curl FAILED to reach vetify-qa.ikeapp.com from this runner"
+
       - name: Start device log capture (waits for Appium to boot the simulator itself, doesn't boot it directly)
         run: |
           (
