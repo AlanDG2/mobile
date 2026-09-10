@@ -1,0 +1,28 @@
+name: Build iOS app
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build (simulator, no signing needed)
+        run: |
+          xcodebuild -project iOS/vetify.xcodeproj -scheme vetify-qa \
+            -configuration Debug -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Zip .app
+        run: |
+          cd build/Build/Products/Debug-iphonesimulator
+          zip -r app-ios.zip *.app
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app-ios
+          path: build/Build/Products/Debug-iphonesimulator/app-ios.zip
