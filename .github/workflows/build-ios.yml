@@ -55,7 +55,6 @@ jobs:
           xcrun simctl boot "$MOBILE_IOS_DEVICE_UDID" || true
           xcrun simctl bootstatus "$MOBILE_IOS_DEVICE_UDID" -b
           nohup xcrun simctl spawn "$MOBILE_IOS_DEVICE_UDID" log stream --level debug --style compact \
-            --predicate 'process == "vetify-qa" OR eventMessage CONTAINS "WebKit" OR eventMessage CONTAINS "webview" OR eventMessage CONTAINS "isInspectable"' \
             > simulator.log 2>&1 &
           echo $! > simctl_log.pid
 
