@@ -55,6 +55,13 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, UIIm
 
     override func loadView() {
         webView = makeWebViewWithCustomScripts()
+        // EXPERIMENTO (no está en el código fuente real de ike-webapp-mobile): sin esto, el
+        // WKWebView no expone un contexto WEBVIEW_* inspeccionable a Appium/XCUITest en iOS
+        // 16.4+ (confirmado necesario a partir de esa versión). Se agrega acá solo para probar
+        // la hipótesis antes de reportarla como causa raíz real.
+        if #available(iOS 16.4, *) {
+            webView.isInspectable = true
+        }
         webView.navigationDelegate = self
         webView.uiDelegate = self
 
