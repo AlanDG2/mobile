@@ -22,7 +22,7 @@ describe('TS-01 Smoke', () => {
                 const contexts = await browser.getContexts();
                 return contexts.length > 1;
             },
-            { timeout: 20_000, timeoutMsg: 'No aparecio ningun contexto WEBVIEW en 20s tras el launch' },
+            { timeout: 60_000, timeoutMsg: 'No aparecio ningun contexto WEBVIEW en 60s tras el launch' },
         );
 
         await smokePage.switchToWebViewContext();

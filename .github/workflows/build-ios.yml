@@ -50,6 +50,15 @@ jobs:
       - name: Pick an available iPhone simulator on this runner
         run: node mobile/config/pick-ios-simulator.mjs
 
+      - name: Boot simulator and start device log capture
+        run: |
+          xcrun simctl boot "$MOBILE_IOS_DEVICE_UDID" || true
+          xcrun simctl bootstatus "$MOBILE_IOS_DEVICE_UDID" -b
+          nohup xcrun simctl spawn "$MOBILE_IOS_DEVICE_UDID" log stream --level debug --style compact \
+            --predicate 'process == "vetify-qa" OR eventMessage CONTAINS "WebKit" OR eventMessage CONTAINS "webview" OR eventMessage CONTAINS "isInspectable"' \
+            > simulator.log 2>&1 &
+          echo $! > simctl_log.pid
+
       - name: Run iOS smoke test (Appium + local Simulator, no BrowserStack)
         env:
           APP_ENV: qa
@@ -62,8 +71,18 @@ jobs:
           IKE_WEBAPP_BASE_URL: https://ikeargentina-qa.ikeapp.com
         run: npx wdio run ./mobile/config/wdio.ios.conf.ts --spec mobile/specs/example/app-launch.spec.ts
 
+      - name: Stop device log capture
+        if: always()
+        run: kill "$(cat simctl_log.pid)" 2>/dev/null || true
+
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: allure-results-mobile
           path: allure-results-mobile
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: simulator-log
+          path: simulator.log
