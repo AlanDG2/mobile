@@ -72,6 +72,14 @@ jobs:
           IKE_WEBAPP_BASE_URL: https://ikeargentina-qa.ikeapp.com
         run: npx wdio run ./mobile/config/wdio.ios.conf.ts --spec mobile/specs/example/app-launch.spec.ts
 
+      - name: Check whether the app is actually installed on the simulator
+        if: always()
+        run: |
+          echo "--- xcrun simctl listapps (filtered for vetify) ---"
+          xcrun simctl listapps "$MOBILE_IOS_DEVICE_UDID" | grep -i -A5 -B5 vetify || echo "NOT FOUND in listapps output"
+          echo "--- xcrun simctl get_app_container ---"
+          xcrun simctl get_app_container "$MOBILE_IOS_DEVICE_UDID" com.vetify.qa.webapp || echo "get_app_container FAILED (app not installed under that bundle id)"
+
       - name: Stop device log capture
         if: always()
         run: kill "$(cat simctl_log.pid)" 2>/dev/null || true
