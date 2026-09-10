@@ -1,10 +1,10 @@
-name: Build iOS app
+name: Build and test iOS app
 
 on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build-and-test:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
@@ -21,7 +21,7 @@ jobs:
             -derivedDataPath build \
             CODE_SIGNING_ALLOWED=NO
 
-      - name: Zip .app
+      - name: Zip .app (build artifact for download)
         run: |
           cd build/Build/Products/Debug-iphonesimulator
           zip -r app-ios.zip *.app
@@ -30,3 +30,40 @@ jobs:
         with:
           name: app-ios
           path: build/Build/Products/Debug-iphonesimulator/app-ios.zip
+
+      - name: Resolve built .app path
+        run: |
+          APP_PATH=$(find build/Build/Products/Debug-iphonesimulator -maxdepth 1 -name "*.app" | head -n1)
+          echo "Found app at: $APP_PATH"
+          echo "MOBILE_APP_PATH_IOS=$APP_PATH" >> "$GITHUB_ENV"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Install Appium XCUITest driver
+        run: npx appium driver install xcuitest
+
+      - name: Pick an available iPhone simulator on this runner
+        run: node mobile/config/pick-ios-simulator.mjs
+
+      - name: Run iOS smoke test (Appium + local Simulator, no BrowserStack)
+        env:
+          APP_ENV: qa
+          AUTH_API_BASE_URL: https://ike-webapp-staging.us.auth0.com
+          VETIFY_WEBAPP_BASE_URL: https://vetify-qa.ikeapp.com
+          VETIFY_INSTITUTIONAL_BASE_URL: https://qa.vetify.com.ar
+          OSDE_CAPITADO_INSTITUTIONAL_BASE_URL: https://qa.vetify.com.ar/osde
+          OSDE_ADQUIRENTE_INSTITUTIONAL_BASE_URL: https://qa.vetify.com.ar/mas-osde-beneficios
+          FLUX_CAPITADO_INSTITUTIONAL_BASE_URL: https://qa.vetify.com.ar/flux
+          IKE_WEBAPP_BASE_URL: https://ikeargentina-qa.ikeapp.com
+        run: npx wdio run ./mobile/config/wdio.ios.conf.ts --spec mobile/specs/example/app-launch.spec.ts
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: allure-results-mobile
+          path: allure-results-mobile
